@@ -1,11 +1,11 @@
-import { View, Text, ScrollView,Image } from 'react-native'
+import { View, Text, ScrollView,Image, Alert } from 'react-native'
 import React, { useState } from 'react'
-import { Stack,Link } from 'expo-router'
+import { Stack,Link, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '../../constants'
 import FormField from '../../components/FormField'
 import CustomButton from '../../components/CustomButton'
-
+import { createUser } from '../../lib/appwrite'
 
 const SignUp = () => {
 
@@ -14,9 +14,23 @@ const SignUp = () => {
     email:"",
     password:""
   })
+ 
+  const submit = async() => {
+    if(!form.username || !form.email || !form.password){
+      Alert.alert("Error","please fill in all the fields")
+    }
+    setSubmitting(true);
 
-  const submit = () => {
+    try {
+      const result = await createUser(form.email,form.password,form.username)
 
+      router.replace("/Home")
+    } catch (error) {
+      Alert.alert("Error", error.message)
+    } finally{
+      setSubmitting(false)
+    }
+    
   }
 
   const [submitting,setSubmitting] = useState(false)
@@ -39,8 +53,7 @@ const SignUp = () => {
             title="Username"
             value={form.username}
             handleChangeText = {(e)=>setForm({...form,username:e})}
-            otherStyles = "mt-10"
-            
+            otherStyles = "mt-10"           
           />
 
           <FormField 
@@ -58,7 +71,7 @@ const SignUp = () => {
             otherStyles = "mt-7"      
           />
           <CustomButton 
-            title="Sign in"
+            title="Sign Up"
             handlePress={submit}
             containerStyles="mt-7"
             isLoading={submitting}
