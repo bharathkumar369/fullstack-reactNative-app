@@ -6,34 +6,23 @@ import SearchInput from '../../components/SearchInput'
 import Trending from '../../components/Trending'
 import EmptyState from '../../components/EmptyState'
 import { getAllPosts } from '../../lib/appwrite'
+import useAppWrite from '../../lib/useAppWrite'
+import VideoCard from '../../components/VideoCard'
 
 
 const Home = () => {
 
-  const [data,setData] = React.useState([]);
-  const [isLoading,setIsLoading] = React.useState(true);
-
-  React.useEffect(()=>{
-    const fetchData = async() => {
-      setIsLoading(true);
-      try {
-        const res = await getAllPosts();
-      } catch (error) {
-        Alert.alert("error", error.message)
-      }
-    }
-    fetchData()
-  },[])
-
-  console.log(data);
-  
-
+  const { data:posts, refetch } = useAppWrite(getAllPosts)
   const [refreshing,setRefreshing] = React.useState(false)
 
-  const onRefresh = async() => {
+  const onRefresh = async () => {
     setRefreshing(true);
+    await refetch;
     setRefreshing(false)
   }
+
+  console.log(posts);
+  
   
   return (
     <SafeAreaView className='bg-primary h-full'>
@@ -42,7 +31,9 @@ const Home = () => {
         //data={[]}
         keyExtractor={(item)=>item.$id}
         renderItem={({item})=>(
-          <Text className='text-3xl text-white'>{item.id}</Text>
+          <VideoCard 
+            video = {item}
+          />
         )}
         ListHeaderComponent={()=>(
           <View className='my-6 px-4 space-y-6'>
